@@ -256,6 +256,16 @@ const message = {
           images: "Image List",
           push_image: "Push the mirror to the current project",
           version: "Version",
+        },
+        dmp: {
+            list: "DMP List",
+            name: "Name",
+            label: "Label",
+            version: "Version",
+            open_dmp: "Console",
+            user_not_in_cluster: "You are not a member of this cluster and cannot access the DMP console of this cluster. Please contact the administrator to add you as a cluster member.",
+            ready: "Ready",
+            not_ready: "NotReady",
         }
     },
 }
