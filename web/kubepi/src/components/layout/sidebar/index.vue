@@ -17,7 +17,7 @@
       </el-menu>
     </el-scrollbar>
     <el-row style="text-align: center">
-      <el-button style="font-size:14px; margin-top: -10px" type="text" @click="openApi">{{ $t('commons.personal.copy_right') }}</el-button>
+      <!-- <el-button style="font-size:14px; margin-top: -10px" type="text" @click="openApi">{{ $t('commons.personal.copy_right') }}</el-button> -->
     </el-row>
   </div>
 </template>

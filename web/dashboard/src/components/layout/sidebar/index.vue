@@ -16,7 +16,7 @@
                               :base-path="route.path"/>
             </el-menu>
             <div v-if="!isCollapse">
-              <el-button class="copyRight" style="" type="text" @click="openApi">{{ $t('commons.personal.copy_right') }}</el-button>
+              <!-- <el-button class="copyRight" style="" type="text" @click="openApi">{{ $t('commons.personal.copy_right') }}</el-button> -->
             </div>
         </el-scrollbar>
 
