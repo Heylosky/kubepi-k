@@ -266,6 +266,16 @@ const message = {
             user_not_in_cluster: "您不是此集群的成员，无法访问此集群的DMP控制台，请联系管理员添加您为集群成员",
             ready: "正常",
             not_ready: "异常",
+        },
+        tekton: {
+            list: "Tekton列表",
+            name: "名称",
+            label: "标签",
+            version: "版本",
+            open_tekton: "控制台",
+            user_not_in_cluster: "您不是此集群的成员，无法访问此集群的Tekton控制台，请联系管理员添加您为集群成员",
+            ready: "正常",
+            not_ready: "异常",
         }
     },
 }
