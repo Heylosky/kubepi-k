@@ -266,7 +266,17 @@ const message = {
             user_not_in_cluster: "You are not a member of this cluster and cannot access the DMP console of this cluster. Please contact the administrator to add you as a cluster member.",
             ready: "Ready",
             not_ready: "NotReady",
-        }
+        },
+        tekton: {
+            list: "Tekton List",
+            name: "Name",
+            label: "Label",
+            version: "Version",
+            open_tekton: "Console",
+            user_not_in_cluster: "You are not a member of this cluster and cannot access the Tekton console of this cluster. Please contact the administrator to add you as a cluster member.",
+            ready: "Ready",
+            not_ready: "NotReady",
+        },
     },
 }
 
