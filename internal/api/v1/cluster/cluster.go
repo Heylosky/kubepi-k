@@ -314,7 +314,7 @@ func (h *Handler) SearchClusters() iris.Handler {
 			result = append(result, c)
 		}
 		if showExtra {
-			ctx1, cancel := goContext.WithTimeout(goContext.Background(), 2*time.Second)
+			ctx1, cancel := goContext.WithTimeout(goContext.Background(), 10*time.Second)
 			defer cancel()
 
 			wg := sync.WaitGroup{}
