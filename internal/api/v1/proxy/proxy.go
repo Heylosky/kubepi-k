@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"encoding/json"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -417,29 +416,12 @@ func fetchMultiNamespaceResource(client *http.Client, namespaces []string, apiUr
 }
 
 func (h *Handler) generateTLSTransport(c *v1Cluster.Cluster, profile session.UserProfile) (http.RoundTripper, error) {
-	if profile.IsAdministrator {
-		c := kubernetes.NewKubernetes(c)
-		adminConfig, err := c.Config()
-		if err != nil {
-			return nil, err
-		}
-		return rest.TransportFor(adminConfig)
-
-	}
-
-	binding, err := h.clusterBindingService.GetBindingByClusterNameAndUserName(c.Name, profile.Name, common.DBOptions{})
+	d := kubernetes.NewKubernetes(c)
+	adminConfig, err := d.Config()
 	if err != nil {
 		return nil, err
 	}
-	kubeConf := &rest.Config{
-		Host: c.Spec.Connect.Forward.ApiServer,
-		TLSClientConfig: rest.TLSClientConfig{
-			Insecure: true,
-			CertData: binding.Certificate,
-			KeyData:  pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: c.PrivateKey}),
-		},
-	}
-	return rest.TransportFor(kubeConf)
+	return rest.TransportFor(adminConfig)
 }
 
 func ensureProxyPathValid(path string) string {
