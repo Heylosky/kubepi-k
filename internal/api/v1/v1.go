@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/kubepi/internal/api/v1/sso"
 	"io/ioutil"
 	"strings"
+
+	"github.com/KubeOperator/kubepi/internal/api/v1/dmp"
+	"github.com/KubeOperator/kubepi/internal/api/v1/sso"
 
 	"github.com/KubeOperator/kubepi/internal/api/v1/mfa"
 	"github.com/KubeOperator/kubepi/internal/server"
@@ -438,6 +440,7 @@ func AddV1Route(app iris.Party) {
 	authParty.Get("/", apiResourceHandler(authParty))
 	user.Install(authParty)
 	cluster.Install(authParty)
+	dmp.Install(authParty)
 	role.Install(authParty)
 	system.Install(authParty)
 	proxy.Install(authParty)
