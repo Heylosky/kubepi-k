@@ -8,16 +8,16 @@
       <el-table-column type="selection" fix></el-table-column>
       <el-table-column :label="$t('commons.table.status')" min-width="80px" fix>
         <template v-slot:default="{row}">
-          <el-tag type="success" v-if="row.extraClusterInfo.health">{{ $t('business.dmp.ready') }}</el-tag>
-          <el-tooltip class="item" effect="dark" :content="row.extraClusterInfo.message" placement="right">
-            <el-tag type="danger" v-if="!row.extraClusterInfo.health">{{ $t('business.dmp.not_ready') }}</el-tag>
+          <el-tag type="success" v-if="row.extraDmpInfo.health">{{ $t('business.dmp.ready') }}</el-tag>
+          <el-tooltip class="item" effect="dark" :content="row.extraDmpInfo.message" placement="right">
+            <el-tag type="danger" v-if="!row.extraDmpInfo.health">{{ $t('business.dmp.not_ready') }}</el-tag>
           </el-tooltip>
         </template>
       </el-table-column>
 
       <el-table-column :label="$t('commons.table.name')" prop="name" min-width="140px" show-overflow-tooltip fix>
         <template v-slot:default="{row}">
-          <span v-if="row.extraClusterInfo.health" class="span-link" @click="onGotoDashboard(row)">{{ row.name }}</span>
+          <span v-if="row.extraDmpInfo.health" class="span-link" @click="onGotoDashboard(row)">{{ row.name }}</span>
           <span v-else>{{ row.name }}</span>
         </template>
       </el-table-column>
@@ -85,7 +85,7 @@
 
       <el-table-column :label="$t('commons.table.action')" width="100">
         <template v-slot:default="{row}">
-          <el-button @click="onGotoDashboard(row)" :disabled="!row.extraClusterInfo.health">
+          <el-button @click="onGotoDashboard(row)" :disabled="!row.extraDmpInfo.health">
             {{ $t("business.dmp.open_dmp") }}
           </el-button>
         </template>
@@ -121,11 +121,13 @@
 
 <script>
 import LayoutContent from "@/components/layout/LayoutContent"
-import {deleteCluster, listClusters, searchClusters, updateCluster} from "@/api/clusters"
+import {deleteCluster, listClusters, updateCluster} from "@/api/clusters"
+import {searchDmps} from "@/api/dmps"
 import {checkPermissions} from "@/utils/permission";
 import ComplexTable from "@/components/complex-table";
 import Rule from "@/utils/rules"
 import {downloadHelmReleases} from "@/utils/helm"
+import { JSEncrypt } from 'jsencrypt'
 
 export default {
   name: "ClusterList",
@@ -185,7 +187,7 @@ export default {
             this.onDetail(row.name)
           },
           disabled: (row) => {
-            return !(checkPermissions({resource: "clusters", verb: "authorization"}) && row.extraClusterInfo.health)
+            return !(checkPermissions({resource: "clusters", verb: "authorization"}) && row.extraDmpInfo.health)
           }
         },
         {
@@ -202,10 +204,34 @@ export default {
     }
   },
   methods: {
+    async getRsaPublicKey(clustername) {
+      let url = `http://192.168.195.11:32000/apis/cluster.karmada.io/v1alpha1/clusters/${clustername}/proxy/api/v1/namespaces/scfdev/services/dmp-agent:30556/proxy/api/common/public-key`
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await response.json()
+      if (data.code && data.code === 200) {
+        window.sessionStorage.setItem('RsaPublicKey', JSON.stringify(data.data))
+        return data.data
+      } else {
+        alert(data.message)
+        return false
+      }
+    },
+    async getRsa(password, clustername) {
+      var encrypt = new JSEncrypt();
+      const publicKey = await this.getRsaPublicKey(clustername)
+      if (!publicKey) return false
+      encrypt.setPublicKey(publicKey);
+      var encrypted = encrypt.encrypt(password);
+      return encrypted
+    },
     search(conditions) {
       this.loading = true
       const {currentPage, pageSize} = this.paginationConfig
-      searchClusters(currentPage, pageSize, conditions).then(data => {
+      searchDmps(currentPage, pageSize, conditions).then(data => {
         this.loading = false
         this.data = data.data.items
         this.paginationConfig.total = data.data.total
@@ -231,7 +257,6 @@ export default {
       row.form.key = ""
       row.showAddLabelVisible = true
     },
-
     onDeleteLabel(row, key) {
       row.labels.splice(row.labels.indexOf(key), 1)
       updateCluster(row.name, {"labels": row.labels, "withLabel": true}).then(() => {
@@ -297,11 +322,29 @@ export default {
         }
       });
     },
-    onGotoDashboard(row) {
+    async onGotoDashboard(row) {
       if (row.accessable) {
-        sessionStorage.removeItem("namespace")
-        const url = `/apis/cluster.karmada.io/v1alpha1/clusters/${row.name}/proxy/api/v1/namespaces/scfdev/services/dmp-agent:30556/proxy/`
-        window.open(url, "_blank")
+        const urlLogin = `http://192.168.195.11:32000/apis/cluster.karmada.io/v1alpha1/clusters/${row.name}/proxy/api/v1/namespaces/scfdev/services/dmp-agent:30556/proxy/api/sys/accounts/login`
+        const params = {
+            'username': row.dmpUser,
+            'password': await this.getRsa(row.dmpPassword, row.name),
+            'capthcha': '',
+            'cid': ''
+        }
+        const response = await fetch(urlLogin, {
+            method: 'post',
+            body: JSON.stringify(params),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((res)=>{
+            return res
+        }).catch((err)=>{
+            alert(err)
+        })
+        const data = await response.json()
+        window.sessionStorage.setItem('token', JSON.stringify(data.data.token))
+        window.open(`http://192.168.195.11:32000/apis/cluster.karmada.io/v1alpha1/clusters/${row.name}/proxy/api/v1/namespaces/scfdev/services/dmp-agent:30556/proxy/`, "_blank")
       } else {
         this.$message.error(this.$t('business.dmp.user_not_in_cluster'))
       }

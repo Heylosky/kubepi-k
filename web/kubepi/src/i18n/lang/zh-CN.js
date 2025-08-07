@@ -263,7 +263,7 @@ const message = {
             label: "标签",
             version: "版本",
             open_dmp: "控制台",
-            user_not_in_cluster: "您不是此集群的成员，无法访问此集群的DMP控制台，请联系管理员添加您为集群成员",
+            user_not_in_cluster: "您未取得此集群DMP系统访问授权，无法访问此集群DMP控制台，请联系管理员添加授权",
             ready: "正常",
             not_ready: "异常",
         },

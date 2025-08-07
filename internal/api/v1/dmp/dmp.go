@@ -66,22 +66,18 @@ func (h *Handler) SearchDmps() iris.Handler {
 		profile := u.(session.UserProfile)
 		for i := range clusters {
 			c := Dmp{Cluster: clusters[i]}
-			if profile.IsAdministrator {
-				c.Accessable = true
-				c.DmpAccount = "admin"
-			} else {
-				bs, err := h.dmpBindingService.GetDmpBindingByDmpName(c.Name, common.DBOptions{})
-				if err != nil && !errors.Is(err, storm.ErrNotFound) {
-					ctx.StatusCode(iris.StatusInternalServerError)
-					ctx.Values().Set("message", err.Error())
-					return
-				}
-				c.MemberCount = len(bs)
-				for j := range bs {
-					if bs[j].UserRef == profile.Name {
-						c.Accessable = true
-						c.DmpAccount = "admin"
-					}
+			bs, err := h.dmpBindingService.GetDmpBindingByDmpName(c.Name, common.DBOptions{})
+			if err != nil && !errors.Is(err, storm.ErrNotFound) {
+				ctx.StatusCode(iris.StatusInternalServerError)
+				ctx.Values().Set("message", err.Error())
+				return
+			}
+			c.MemberCount = len(bs)
+			for j := range bs {
+				if bs[j].UserRef == profile.Name {
+					c.Accessable = true
+					c.DmpUser = bs[j].DmpUser
+					c.DmpPassword = bs[j].DmpPassword
 				}
 			}
 			result = append(result, c)

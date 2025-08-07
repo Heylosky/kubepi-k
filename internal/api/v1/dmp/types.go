@@ -9,7 +9,8 @@ type Dmp struct {
 	v1Cluster.Cluster
 	Accessable   bool         `json:"accessable"`
 	MemberCount  int          `json:"memberCount"`
-	DmpAccount   string       `json:"dmpAccount"`
+	DmpUser      string       `json:"dmpUser"`
+	DmpPassword  string       `json:"dmpPassword"`
 	ExtraDmpInfo ExtraDmpInfo `json:"extraDmpInfo"`
 }
 
@@ -25,8 +26,9 @@ type ExtraDmpInfo struct {
 }
 
 type Member struct {
-	Name         string    `json:"name"`
-	ClusterRoles []string  `json:"clusterRoles"`
-	BindingName  string    `json:"bindingName"`
-	CreateAt     time.Time `json:"createAt"`
+	Name        string    `json:"name"`
+	DmpUser     string    `json:"dmpUser"`
+	DmpPassword string    `json:"dmpPassword"`
+	BindingName string    `json:"bindingName"`
+	CreateAt    time.Time `json:"createAt"`
 }

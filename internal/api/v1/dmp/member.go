@@ -38,6 +38,16 @@ func (h *Handler) CreateDmpMember() iris.Handler {
 			ctx.Values().Set("message", "username can not be none")
 			return
 		}
+		if req.DmpUser == "" {
+			ctx.StatusCode(iris.StatusBadRequest)
+			ctx.Values().Set("message", "dmpUser can not be none")
+			return
+		}
+		if req.DmpPassword == "" {
+			ctx.StatusCode(iris.StatusBadRequest)
+			ctx.Values().Set("message", "dmpPassword can not be none")
+			return
+		}
 		u := ctx.Values().Get("profile")
 		profile := u.(session.UserProfile)
 		binding := v1Dmp.Binding{
@@ -48,8 +58,10 @@ func (h *Handler) CreateDmpMember() iris.Handler {
 			Metadata: v1.Metadata{
 				Name: fmt.Sprintf("%s-%s-dmp-binding", name, req.Name),
 			},
-			UserRef: req.Name,
-			DmpRef:  name,
+			UserRef:     req.Name,
+			DmpRef:      name,
+			DmpUser:     req.DmpUser,
+			DmpPassword: req.DmpPassword,
 		}
 
 		tx, _ := server.DB().Begin(true)

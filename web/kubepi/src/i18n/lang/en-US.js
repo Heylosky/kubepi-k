@@ -263,7 +263,7 @@ const message = {
             label: "Label",
             version: "Version",
             open_dmp: "Console",
-            user_not_in_cluster: "You are not a member of this cluster and cannot access the DMP console of this cluster. Please contact the administrator to add you as a cluster member.",
+            user_not_in_cluster: "You do not have access authorization for this cluster DMP system and cannot access this cluster DMP console. Please contact the administrator to add authorization.",
             ready: "Ready",
             not_ready: "NotReady",
         },
